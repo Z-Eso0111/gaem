@@ -157,9 +157,3 @@ while wait(0.4) do
 		end
 	end
 end
-
-char.Humanoid.Died.Connect(function()
-	ScreenGui:Destroy()
-	script:Destroy()
-	scriptc.Parent = player
-end)
