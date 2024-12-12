@@ -8,9 +8,7 @@ local candyFold = workspace:WaitForChild("events")
 local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 
-local ReplicEvents = Instance.new("Folder",game.ReplicatedStorage)
-ReplicEvents.Name = "ReplicEvents"
-
+-- Karakter değiştiğinde güncelleme
 player.CharacterAdded:Connect(function(newChar)
 	char = newChar
 end)
@@ -26,8 +24,8 @@ ScreenGui.IgnoreGuiInset = true
 script.Parent = ScreenGui
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 250, 0, 250)
-Frame.Position = UDim2.new(0.5, -125, 0.5, -125)
+Frame.Size = UDim2.new(0, 250, 0, 200)
+Frame.Position = UDim2.new(0.5, -125, 0.5, -100)
 Frame.AnchorPoint = Vector2.new(0.5, 0.5)
 Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 Frame.BorderSizePixel = 0
@@ -102,26 +100,10 @@ BringLootBoxToggle.Position = UDim2.new(0.05, 0, 0.8, 0)
 BringLootBoxToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
 BringLootBoxToggle.Parent = Frame
 
-local SafeButton = Instance.new("TextButton")
-SafeButton.Text = "Safe plate"
-SafeButton.Font = Enum.Font.Gotham
-SafeButton.TextSize = 14
-SafeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-SafeButton.Size = UDim2.new(0.9, 0, 0, 30)
-SafeButton.Position = UDim2.new(0.05, 0, 0.8, 0)
-SafeButton.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-SafeButton.Parent = Frame
-
 local isBringCandyCaneEnabled = false
 local isBringTacoEnabled = false
 local isBringToastEnabled = false
 local isBringLootBoxEnabled = false
-local isSafeButtonEnabled = false
-
-SafeButton.MouseButton1Click:Connect(function()
-	isSafeButtonEnabled = not isSafeButtonEnabled
-	SafeButton.BackgroundColor3 = isSafeButtonEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
-end)
 
 BringCandyCaneToggle.MouseButton1Click:Connect(function()
 	isBringCandyCaneEnabled = not isBringCandyCaneEnabled
@@ -149,74 +131,38 @@ CloseButton.MouseButton1Click:Connect(function()
 	CloseButton.Text = isHidden and "Show" or "Hide"
 end)
 
-if player.Team.Name == "Player" then
-	while wait(0.4) do
-		if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
-			continue
-		end
-		
-		if isSafeButtonEnabled then
-			for _, candyCane in pairs(ReplicEvents:GetChildren()) do
-				candyCane.Parent = ReplicEvents
-				if candyCane.Name == "candyCane" then
-					if isBringCandyCaneEnabled then
-						candyCane.Size = Vector3.new(1, 1, 1)
-						candyCane.Position = char.HumanoidRootPart.Position
-					end
-				elseif candyCane.Name == "taco" then
-					if isBringTacoEnabled then
-						candyCane.Size = Vector3.new(1, 1, 1)
-						candyCane.Position = char.HumanoidRootPart.Position
-					end
-				elseif candyCane.Name == "toast" and char.Humanoid.Health < char.Humanoid.MaxHealth then
-					if isBringToastEnabled then
-						if candyCane:FindFirstChildOfClass("Fire") then
-							candyCane:Destroy()
-						else
-							candyCane.Size = Vector3.new(1, 1, 1)
-							candyCane.Position = char.HumanoidRootPart.Position
-						end
-					end
-				elseif candyCane.Name == "lootbox" then
-					if isBringLootBoxEnabled then
-						candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
-						local pos = char.HumanoidRootPart.CFrame
-						char.HumanoidRootPart.CFrame = candyCane.PrimaryPart.CFrame
-						task.wait()
-						char.HumanoidRootPart.CFrame = pos
-					end
+while wait(0.4) do
+	if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
+		continue
+	end
+
+	for _, candyCane in pairs(candyFold:GetChildren()) do
+		if candyCane.Name == "candyCane" then
+			if isBringCandyCaneEnabled then
+				candyCane.Size = Vector3.new(1, 1, 1)
+				candyCane.Position = char.HumanoidRootPart.Position
+			end
+		elseif candyCane.Name == "taco" then
+			if isBringTacoEnabled then
+				candyCane.Size = Vector3.new(1, 1, 1)
+				candyCane.Position = char.HumanoidRootPart.Position
+			end
+		elseif candyCane.Name == "toast" and char.Humanoid.Health < 100 then
+			if isBringToastEnabled then
+				if candyCane:FindFirstChildOfClass("Fire") then
+					candyCane:Destroy()
+				else
+					candyCane.Size = Vector3.new(1, 1, 1)
+					candyCane.Position = char.HumanoidRootPart.Position
 				end
 			end
-		else
-			for _, candyCane in pairs(candyFold:GetChildren()) do
-				if candyCane.Name == "candyCane" then
-					if isBringCandyCaneEnabled then
-						candyCane.Size = Vector3.new(1, 1, 1)
-						candyCane.Position = char.HumanoidRootPart.Position
-					end
-				elseif candyCane.Name == "taco" then
-					if isBringTacoEnabled then
-						candyCane.Size = Vector3.new(1, 1, 1)
-						candyCane.Position = char.HumanoidRootPart.Position
-					end
-				elseif candyCane.Name == "toast" and char.Humanoid.Health < char.Humanoid.MaxHealth then
-					if isBringToastEnabled then
-						if candyCane:FindFirstChildOfClass("Fire") then
-							candyCane:Destroy()
-						else
-							candyCane.Size = Vector3.new(1, 1, 1)
-							candyCane.Position = char.HumanoidRootPart.Position
-						end
-					end
-				elseif candyCane.Name == "lootbox" then
-					if isBringLootBoxEnabled then
-						candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
-						local pos = char.HumanoidRootPart.CFrame
-						char.HumanoidRootPart.CFrame = candyCane.PrimaryPart.CFrame
-						task.wait()
-						char.HumanoidRootPart.CFrame = pos
-					end
-				end
+		elseif candyCane.Name == "lootbox" then
+			if isBringLootBoxEnabled then
+				candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
+				local pos = char.HumanoidRootPart.CFrame
+				char.HumanoidRootPart.CFrame = candyCane.PrimaryPart.CFrame
+				task.wait()
+				char.HumanoidRootPart.CFrame = pos
 			end
 		end
 	end
