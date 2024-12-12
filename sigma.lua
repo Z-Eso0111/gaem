@@ -7,13 +7,10 @@ local TweenService = game:GetService("TweenService")
 local candyFold = workspace:WaitForChild("events")
 local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = char:WaitForChild("HumanoidRootPart")
-local humanoid = char:WaitForChild("Humanoid")
 
+-- Karakter değiştiğinde güncelleme
 player.CharacterAdded:Connect(function(newChar)
     char = newChar
-    humanoidRootPart = char:WaitForChild("HumanoidRootPart")
-    humanoid = char:WaitForChild("Humanoid")
 end)
 
 script.Parent = player.PlayerScripts
@@ -63,42 +60,107 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(1, 0)
 UICorner.Parent = CloseButton
 
--- Toggle Buttons ve işlevler...
+local BringCandyCaneToggle = Instance.new("TextButton")
+BringCandyCaneToggle.Text = "Bring CandyCane"
+BringCandyCaneToggle.Font = Enum.Font.Gotham
+BringCandyCaneToggle.TextSize = 14
+BringCandyCaneToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+BringCandyCaneToggle.Size = UDim2.new(0.9, 0, 0, 30)
+BringCandyCaneToggle.Position = UDim2.new(0.05, 0, 0.2, 0)
+BringCandyCaneToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+BringCandyCaneToggle.Parent = Frame
+
+local BringTacoToggle = Instance.new("TextButton")
+BringTacoToggle.Text = "Bring Taco"
+BringTacoToggle.Font = Enum.Font.Gotham
+BringTacoToggle.TextSize = 14
+BringTacoToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+BringTacoToggle.Size = UDim2.new(0.9, 0, 0, 30)
+BringTacoToggle.Position = UDim2.new(0.05, 0, 0.4, 0)
+BringTacoToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+BringTacoToggle.Parent = Frame
+
+local BringToastToggle = Instance.new("TextButton")
+BringToastToggle.Text = "Bring Toast"
+BringToastToggle.Font = Enum.Font.Gotham
+BringToastToggle.TextSize = 14
+BringToastToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+BringToastToggle.Size = UDim2.new(0.9, 0, 0, 30)
+BringToastToggle.Position = UDim2.new(0.05, 0, 0.6, 0)
+BringToastToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+BringToastToggle.Parent = Frame
+
+local BringLootBoxToggle = Instance.new("TextButton")
+BringLootBoxToggle.Text = "Bring LootBoxes"
+BringLootBoxToggle.Font = Enum.Font.Gotham
+BringLootBoxToggle.TextSize = 14
+BringLootBoxToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+BringLootBoxToggle.Size = UDim2.new(0.9, 0, 0, 30)
+BringLootBoxToggle.Position = UDim2.new(0.05, 0, 0.8, 0)
+BringLootBoxToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+BringLootBoxToggle.Parent = Frame
+
+local isBringCandyCaneEnabled = false
+local isBringTacoEnabled = false
+local isBringToastEnabled = false
+local isBringLootBoxEnabled = false
+
+BringCandyCaneToggle.MouseButton1Click:Connect(function()
+	isBringCandyCaneEnabled = not isBringCandyCaneEnabled
+	BringCandyCaneToggle.BackgroundColor3 = isBringCandyCaneEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+end)
+
+BringTacoToggle.MouseButton1Click:Connect(function()
+	isBringTacoEnabled = not isBringTacoEnabled
+	BringTacoToggle.BackgroundColor3 = isBringTacoEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+end)
+
+BringToastToggle.MouseButton1Click:Connect(function()
+	isBringToastEnabled = not isBringToastEnabled
+	BringToastToggle.BackgroundColor3 = isBringToastEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+end)
+
+BringLootBoxToggle.MouseButton1Click:Connect(function()
+	isBringLootBoxEnabled = not isBringLootBoxEnabled
+	BringLootBoxToggle.BackgroundColor3 = isBringLootBoxEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+end)
 
 CloseButton.MouseButton1Click:Connect(function()
-    local isHidden = Frame.Visible
-    Frame.Visible = not isHidden
-    CloseButton.Text = isHidden and "Show" or "Hide"
+	local isHidden = Frame.Visible
+	Frame.Visible = not isHidden
+	CloseButton.Text = isHidden and "Show" or "Hide"
 end)
 
 while wait(0.4) do
-    if humanoidRootPart and humanoid then
-        for _, candyCane in pairs(candyFold:GetChildren()) do
-            if candyCane.Name == "candyCane" then
-                if isBringCandyCaneEnabled then
-                    candyCane.Size = Vector3.new(1, 1, 1)
-                    candyCane.Position = humanoidRootPart.Position
-                end
-            elseif candyCane.Name == "taco" then
-                if isBringTacoEnabled then
-                    candyCane.Size = Vector3.new(1, 1, 1)
-                    candyCane.Position = humanoidRootPart.Position
-                end
-            elseif candyCane.Name == "toast" and humanoid.Health < 100 then
-                if isBringToastEnabled then
-                    if candyCane:FindFirstChildOfClass("Fire") then
-                        candyCane:Destroy()
-                    else
-                        candyCane.Size = Vector3.new(1, 1, 1)
-                        candyCane.Position = humanoidRootPart.Position
-                    end
-                end
-            elseif candyCane.Name == "lootbox" then
-                if isBringLootBoxEnabled then
-                    candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
-                    candyCane.PrimaryPart.Position = humanoidRootPart.Position
-                end
-            end
-        end
-    end
+	if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
+		continue
+	end
+
+	for _, candyCane in pairs(candyFold:GetChildren()) do
+		if candyCane.Name == "candyCane" then
+			if isBringCandyCaneEnabled then
+				candyCane.Size = Vector3.new(1, 1, 1)
+				candyCane.Position = char.HumanoidRootPart.Position
+			end
+		elseif candyCane.Name == "taco" then
+			if isBringTacoEnabled then
+				candyCane.Size = Vector3.new(1, 1, 1)
+				candyCane.Position = char.HumanoidRootPart.Position
+			end
+		elseif candyCane.Name == "toast" and char.Humanoid.Health < 100 then
+			if isBringToastEnabled then
+				if candyCane:FindFirstChildOfClass("Fire") then
+					candyCane:Destroy()
+				else
+					candyCane.Size = Vector3.new(1, 1, 1)
+					candyCane.Position = char.HumanoidRootPart.Position
+				end
+			end
+		elseif candyCane.Name == "lootbox" then
+			if isBringLootBoxEnabled then
+				candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
+				candyCane.PrimaryPart.Position = char.HumanoidRootPart.Position
+			end
+		end
+	end
 end
