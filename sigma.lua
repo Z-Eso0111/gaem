@@ -8,11 +8,8 @@ local candyFold = workspace:WaitForChild("events")
 local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 
-local ReplicEvents = Instance.new("Folder",game.ReplicatedStorage)
-ReplicEvents.Name = "ReplicEvents"
-
 player.CharacterAdded:Connect(function(newChar)
-	char = newChar
+    char = newChar
 end)
 
 script.Parent = player.PlayerScripts
@@ -26,7 +23,7 @@ ScreenGui.IgnoreGuiInset = true
 script.Parent = ScreenGui
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 250, 0, 250)
+Frame.Size = UDim2.new(0, 250, 0, 250) -- Boyutu biraz artırdık yeni buton için
 Frame.Position = UDim2.new(0.5, -125, 0.5, -125)
 Frame.AnchorPoint = Vector2.new(0.5, 0.5)
 Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -102,122 +99,82 @@ BringLootBoxToggle.Position = UDim2.new(0.05, 0, 0.8, 0)
 BringLootBoxToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
 BringLootBoxToggle.Parent = Frame
 
-local SafeButton = Instance.new("TextButton")
-SafeButton.Text = "Safe plate"
-SafeButton.Font = Enum.Font.Gotham
-SafeButton.TextSize = 14
-SafeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-SafeButton.Size = UDim2.new(0.9, 0, 0, 30)
-SafeButton.Position = UDim2.new(0.05, 0, 0.8, 0)
-SafeButton.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-SafeButton.Parent = Frame
+local ShootingStarToggle = Instance.new("TextButton")
+ShootingStarToggle.Text = "Bring ShootingStar"
+ShootingStarToggle.Font = Enum.Font.Gotham
+ShootingStarToggle.TextSize = 14
+ShootingStarToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+ShootingStarToggle.Size = UDim2.new(0.9, 0, 0, 30)
+ShootingStarToggle.Position = UDim2.new(0.05, 0, 1.0, 0)
+ShootingStarToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+ShootingStarToggle.Parent = Frame
 
 local isBringCandyCaneEnabled = false
 local isBringTacoEnabled = false
 local isBringToastEnabled = false
 local isBringLootBoxEnabled = false
-local isSafeButtonEnabled = false
-
-SafeButton.MouseButton1Click:Connect(function()
-	isSafeButtonEnabled = not isSafeButtonEnabled
-	SafeButton.BackgroundColor3 = isSafeButtonEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
-end)
+local isShootingStarEnabled = false
 
 BringCandyCaneToggle.MouseButton1Click:Connect(function()
-	isBringCandyCaneEnabled = not isBringCandyCaneEnabled
-	BringCandyCaneToggle.BackgroundColor3 = isBringCandyCaneEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+    isBringCandyCaneEnabled = not isBringCandyCaneEnabled
+    BringCandyCaneToggle.BackgroundColor3 = isBringCandyCaneEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
 end)
 
 BringTacoToggle.MouseButton1Click:Connect(function()
-	isBringTacoEnabled = not isBringTacoEnabled
-	BringTacoToggle.BackgroundColor3 = isBringTacoEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+    isBringTacoEnabled = not isBringTacoEnabled
+    BringTacoToggle.BackgroundColor3 = isBringTacoEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
 end)
 
 BringToastToggle.MouseButton1Click:Connect(function()
-	isBringToastEnabled = not isBringToastEnabled
-	BringToastToggle.BackgroundColor3 = isBringToastEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+    isBringToastEnabled = not isBringToastEnabled
+    BringToastToggle.BackgroundColor3 = isBringToastEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
 end)
 
 BringLootBoxToggle.MouseButton1Click:Connect(function()
-	isBringLootBoxEnabled = not isBringLootBoxEnabled
-	BringLootBoxToggle.BackgroundColor3 = isBringLootBoxEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+    isBringLootBoxEnabled = not isBringLootBoxEnabled
+    BringLootBoxToggle.BackgroundColor3 = isBringLootBoxEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+end)
+
+ShootingStarToggle.MouseButton1Click:Connect(function()
+    isShootingStarEnabled = not isShootingStarEnabled
+    ShootingStarToggle.BackgroundColor3 = isShootingStarEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
 end)
 
 CloseButton.MouseButton1Click:Connect(function()
-	local isHidden = Frame.Visible
-	Frame.Visible = not isHidden
-	CloseButton.Text = isHidden and "Show" or "Hide"
+    local isHidden = Frame.Visible
+    Frame.Visible = not isHidden
+    CloseButton.Text = isHidden and "Show" or "Hide"
 end)
 
-
 while wait(0.4) do
-	if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
-		continue
-	end
-	if player.Team.Name == "playing" then
-		if isSafeButtonEnabled then
-			for _, candyCane in pairs(ReplicEvents:GetChildren()) do
-				candyCane.Parent = ReplicEvents
-				if candyCane.Name == "candyCane" then
-					if isBringCandyCaneEnabled then
-						candyCane.Size = Vector3.new(1, 1, 1)
-						candyCane.Position = char.HumanoidRootPart.Position
-					end
-				elseif candyCane.Name == "taco" then
-					if isBringTacoEnabled then
-						candyCane.Size = Vector3.new(1, 1, 1)
-						candyCane.Position = char.HumanoidRootPart.Position
-					end
-				elseif candyCane.Name == "toast" and char.Humanoid.Health < char.Humanoid.MaxHealth then
-					if isBringToastEnabled then
-						if candyCane:FindFirstChildOfClass("Fire") then
-							candyCane:Destroy()
-						else
-							candyCane.Size = Vector3.new(1, 1, 1)
-							candyCane.Position = char.HumanoidRootPart.Position
-						end
-					end
-				elseif candyCane.Name == "lootbox" then
-					if isBringLootBoxEnabled then
-						candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
-						local pos = char.HumanoidRootPart.CFrame
-						char.HumanoidRootPart.CFrame = candyCane.PrimaryPart.CFrame
-						task.wait()
-						char.HumanoidRootPart.CFrame = pos
-					end
-				end
-			end
-		else
-			for _, candyCane in pairs(candyFold:GetChildren()) do
-				if candyCane.Name == "candyCane" then
-					if isBringCandyCaneEnabled then
-						candyCane.Size = Vector3.new(1, 1, 1)
-						candyCane.Position = char.HumanoidRootPart.Position
-					end
-				elseif candyCane.Name == "taco" then
-					if isBringTacoEnabled then
-						candyCane.Size = Vector3.new(1, 1, 1)
-						candyCane.Position = char.HumanoidRootPart.Position
-					end
-				elseif candyCane.Name == "toast" and char.Humanoid.Health < char.Humanoid.MaxHealth then
-					if isBringToastEnabled then
-						if candyCane:FindFirstChildOfClass("Fire") then
-							candyCane:Destroy()
-						else
-							candyCane.Size = Vector3.new(1, 1, 1)
-							candyCane.Position = char.HumanoidRootPart.Position
-						end
-					end
-				elseif candyCane.Name == "lootbox" then
-					if isBringLootBoxEnabled then
-						candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
-						local pos = char.HumanoidRootPart.CFrame
-						char.HumanoidRootPart.CFrame = candyCane.PrimaryPart.CFrame
-						task.wait()
-						char.HumanoidRootPart.CFrame = pos
-					end
-				end
-			end
-		end
-	end
+    if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
+        continue
+    end
+
+    if player.Team.Name == "playing" then
+        for _, candy in pairs(candyFold:GetChildren()) do
+            if candy.Name == "candyCane" and isBringCandyCaneEnabled then
+                candy.Size = Vector3.new(1, 1, 1)
+                candy.Position = char.HumanoidRootPart.Position
+            elseif candy.Name == "taco" and isBringTacoEnabled then
+                candy.Size = Vector3.new(1, 1, 1)
+                candy.Position = char.HumanoidRootPart.Position
+            elseif candy.Name == "toast" and char.Humanoid.Health < 100 and isBringToastEnabled then
+                if candy:FindFirstChildOfClass("Fire") then
+                    candy:Destroy()
+                else
+                    candy.Size = Vector3.new(1, 1, 1)
+                    candy.Position = char.HumanoidRootPart.Position
+                end
+            elseif candy.Name == "lootbox" and isBringLootBoxEnabled then
+                candy.PrimaryPart.Size = Vector3.new(1, 1, 1)
+                local pos = char.HumanoidRootPart.CFrame
+                char.HumanoidRootPart.CFrame = candy.PrimaryPart.CFrame
+                task.wait()
+                char.HumanoidRootPart.CFrame = pos
+            elseif candy.Name == "shootingStar" and isShootingStarEnabled then
+                candy.Position = char.HumanoidRootPart.Position
+            end
+        end
+    end
 end
