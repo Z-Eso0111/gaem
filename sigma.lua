@@ -149,12 +149,12 @@ CloseButton.MouseButton1Click:Connect(function()
 	CloseButton.Text = isHidden and "Show" or "Hide"
 end)
 
-if player.Team.Name == "playing" then
-	while wait(0.4) do
-		if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
-			continue
-		end
-		
+
+while wait(0.4) do
+	if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
+		continue
+	end
+	if player.Team.Name == "playing" then
 		if isSafeButtonEnabled then
 			for _, candyCane in pairs(ReplicEvents:GetChildren()) do
 				candyCane.Parent = ReplicEvents
