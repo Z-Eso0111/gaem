@@ -147,7 +147,7 @@ while wait(0.4) do
 				candyCane.Size = Vector3.new(1, 1, 1)
 				candyCane.Position = char.HumanoidRootPart.Position
 			end
-		elseif candyCane.Name == "toast" and char.Humanoid.Health < 100 then
+		elseif candyCane.Name == "toast" and char.Humanoid.Health < char.Humanoid.MaxHealth then
 			if isBringToastEnabled then
 				if candyCane:FindFirstChildOfClass("Fire") then
 					candyCane:Destroy()
