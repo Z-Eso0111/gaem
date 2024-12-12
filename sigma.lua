@@ -24,7 +24,7 @@ script.Parent = ScreenGui
 
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0, 300, 0, 350)
-Frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+Frame.Position = UDim2.new(0.5, -300,0.5, 0)
 Frame.AnchorPoint = Vector2.new(0.5, 0.5)
 Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 Frame.BorderSizePixel = 0
