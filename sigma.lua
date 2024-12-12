@@ -9,7 +9,7 @@ local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 
 player.CharacterAdded:Connect(function(newChar)
-    char = newChar
+	char = newChar
 end)
 
 script.Parent = player.PlayerScripts
@@ -23,8 +23,8 @@ ScreenGui.IgnoreGuiInset = true
 script.Parent = ScreenGui
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 250, 0, 250) -- Boyutu biraz artırdık yeni buton için
-Frame.Position = UDim2.new(0.5, -125, 0.5, -125)
+Frame.Size = UDim2.new(0, 300, 0, 350)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -200)
 Frame.AnchorPoint = Vector2.new(0.5, 0.5)
 Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 Frame.BorderSizePixel = 0
@@ -39,10 +39,10 @@ UICorner.Parent = Frame
 local Title = Instance.new("TextLabel")
 Title.Text = "Candy Helper"
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 20
+Title.TextSize = 30
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.BackgroundTransparency = 1
-Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Size = UDim2.new(1, 0, 0, 80)
 Title.Parent = Frame
 
 local CloseButton = Instance.new("TextButton")
@@ -51,7 +51,7 @@ CloseButton.Font = Enum.Font.Gotham
 CloseButton.TextSize = 14
 CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseButton.Size = UDim2.new(0, 50, 0, 25)
-CloseButton.Position = UDim2.new(1, -60, 0, 5)
+CloseButton.Position = UDim2.new(1, -60, 0, 7)
 CloseButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
 CloseButton.Parent = ScreenGui
 
@@ -59,122 +59,171 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(1, 0)
 UICorner.Parent = CloseButton
 
-local BringCandyCaneToggle = Instance.new("TextButton")
-BringCandyCaneToggle.Text = "Bring CandyCane"
-BringCandyCaneToggle.Font = Enum.Font.Gotham
-BringCandyCaneToggle.TextSize = 14
-BringCandyCaneToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-BringCandyCaneToggle.Size = UDim2.new(0.9, 0, 0, 30)
-BringCandyCaneToggle.Position = UDim2.new(0.05, 0, 0.2, 0)
-BringCandyCaneToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-BringCandyCaneToggle.Parent = Frame
+local buttonYOffset = 70
+local buttonSpacing = 15
+local buttonsPerPage = 4
+local currentPage = 1
 
-local BringTacoToggle = Instance.new("TextButton")
-BringTacoToggle.Text = "Bring Taco"
-BringTacoToggle.Font = Enum.Font.Gotham
-BringTacoToggle.TextSize = 14
-BringTacoToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-BringTacoToggle.Size = UDim2.new(0.9, 0, 0, 30)
-BringTacoToggle.Position = UDim2.new(0.05, 0, 0.4, 0)
-BringTacoToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-BringTacoToggle.Parent = Frame
+local buttons = {
+	{Text = "Bring CandyCane", Variable = "isBringCandyCaneEnabled"},
+	{Text = "Bring Taco", Variable = "isBringTacoEnabled"},
+	{Text = "Bring Toast", Variable = "isBringToastEnabled"},
+	{Text = "Bring LootBoxes", Variable = "isBringLootBoxEnabled"},
+	{Text = "Bring ShootingStar", Variable = "isShootingStarEnabled"},
+	{Text = "Anti Void", Variable = "AirWalk"},
+	{Text = "-", Variable = "q1"},
+	{Text = "-", Variable = "q2"}
+}
 
-local BringToastToggle = Instance.new("TextButton")
-BringToastToggle.Text = "Bring Toast"
-BringToastToggle.Font = Enum.Font.Gotham
-BringToastToggle.TextSize = 14
-BringToastToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-BringToastToggle.Size = UDim2.new(0.9, 0, 0, 30)
-BringToastToggle.Position = UDim2.new(0.05, 0, 0.6, 0)
-BringToastToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-BringToastToggle.Parent = Frame
+local variables = {}
+local buttonInstances = {}
+local buttonClicked = {}
 
-local BringLootBoxToggle = Instance.new("TextButton")
-BringLootBoxToggle.Text = "Bring LootBoxes"
-BringLootBoxToggle.Font = Enum.Font.Gotham
-BringLootBoxToggle.TextSize = 14
-BringLootBoxToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-BringLootBoxToggle.Size = UDim2.new(0.9, 0, 0, 30)
-BringLootBoxToggle.Position = UDim2.new(0.05, 0, 0.8, 0)
-BringLootBoxToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-BringLootBoxToggle.Parent = Frame
+local function updatePage()
+	for i, button in ipairs(buttonInstances) do
+		button.Visible = false
+	end
 
-local ShootingStarToggle = Instance.new("TextButton")
-ShootingStarToggle.Text = "Bring ShootingStar"
-ShootingStarToggle.Font = Enum.Font.Gotham
-ShootingStarToggle.TextSize = 14
-ShootingStarToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-ShootingStarToggle.Size = UDim2.new(0.9, 0, 0, 30)
-ShootingStarToggle.Position = UDim2.new(0.05, 0, 1.0, 0)
-ShootingStarToggle.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
-ShootingStarToggle.Parent = Frame
+	local startIndex = (currentPage - 1) * buttonsPerPage + 1
+	local endIndex = math.min(startIndex + buttonsPerPage - 1, #buttonInstances)
 
-local isBringCandyCaneEnabled = false
-local isBringTacoEnabled = false
-local isBringToastEnabled = false
-local isBringLootBoxEnabled = false
-local isShootingStarEnabled = false
+	for i = startIndex, endIndex do
+		buttonInstances[i].Visible = true
+	end
+end
 
-BringCandyCaneToggle.MouseButton1Click:Connect(function()
-    isBringCandyCaneEnabled = not isBringCandyCaneEnabled
-    BringCandyCaneToggle.BackgroundColor3 = isBringCandyCaneEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+local function createButton(buttonInfo, index)
+	local button = Instance.new("TextButton")
+	button.Text = buttonInfo.Text
+	button.Font = Enum.Font.Gotham
+	button.TextSize = 14
+	button.TextColor3 = Color3.fromRGB(255, 255, 255)
+	button.Size = UDim2.new(0.9, 0, 0, 40)
+	button.Position = UDim2.new(0.05, 0, 0, buttonYOffset + ((index - 1) % buttonsPerPage) * (40 + buttonSpacing))
+	button.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+	button.Parent = Frame
+
+	local UICorner = Instance.new("UICorner")
+	UICorner.CornerRadius = UDim.new(0, 8)
+	UICorner.Parent = button
+
+	variables[buttonInfo.Variable] = false
+
+	button.MouseButton1Click:Connect(function()
+		if buttonInfo.Text == "Anti Void" and not buttonClicked[buttonInfo.Text] then
+			local antiWoid = Instance.new("Part")
+			antiWoid.Parent = workspace
+			antiWoid.Position = Vector3.new(0, 0, 0)
+			antiWoid.Size = Vector3.new(2047, 3, 2047)
+			antiWoid.Anchored = true
+			antiWoid.CanCollide = true
+			antiWoid.Transparency = 1
+			antiWoid.Name = "AntiVoid"
+			local selectionBox = Instance.new("SelectionBox")
+			selectionBox.Parent = antiWoid
+			selectionBox.Adornee = antiWoid
+			selectionBox.SurfaceColor3 = Color3.fromRGB(246, 147, 255)
+			selectionBox.SurfaceTransparency = 0.8
+			selectionBox.Color3 = Color3.fromRGB(251, 121, 255)
+			selectionBox.LineThickness = 2
+			buttonClicked[buttonInfo.Text] = true
+		elseif buttonInfo.Text == "Anti Void" and buttonClicked[buttonInfo.Text] then
+			local antiWoid = workspace:FindFirstChild("AntiVoid")
+			if antiWoid then
+				antiWoid:Destroy()
+			end
+			buttonClicked[buttonInfo.Text] = false
+		end
+		variables[buttonInfo.Variable] = not variables[buttonInfo.Variable]
+		button.BackgroundColor3 = variables[buttonInfo.Variable] and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+	end)
+
+	buttonInstances[#buttonInstances + 1] = button
+	return button
+end
+
+for i, buttonInfo in ipairs(buttons) do
+	createButton(buttonInfo, i)
+end
+
+local nextPageButton = Instance.new("TextButton")
+nextPageButton.Text = ">>>"
+nextPageButton.Font = Enum.Font.Gotham
+nextPageButton.TextSize = 23
+nextPageButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+nextPageButton.Size = UDim2.new(0.3, 0, 0, 40)
+nextPageButton.Position = UDim2.new(0.65, 0, 1, -60)
+nextPageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 100)
+nextPageButton.Parent = Frame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0)
+UICorner.Parent = nextPageButton
+
+nextPageButton.MouseButton1Click:Connect(function()
+	if currentPage * buttonsPerPage < #buttonInstances then
+		currentPage = currentPage + 1
+		updatePage()
+	end
 end)
 
-BringTacoToggle.MouseButton1Click:Connect(function()
-    isBringTacoEnabled = not isBringTacoEnabled
-    BringTacoToggle.BackgroundColor3 = isBringTacoEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
+local prevPageButton = Instance.new("TextButton")
+prevPageButton.Text = "<<<"
+prevPageButton.Font = Enum.Font.Gotham
+prevPageButton.TextSize = 23
+prevPageButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+prevPageButton.Size = UDim2.new(0.3, 0, 0, 40)
+prevPageButton.Position = UDim2.new(0.05, 0, 1, -60)
+prevPageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 100)
+prevPageButton.Parent = Frame
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(1, 0)
+UICorner.Parent = prevPageButton
+
+prevPageButton.MouseButton1Click:Connect(function()
+	if currentPage > 1 then
+		currentPage = currentPage - 1
+		updatePage()
+	end
 end)
 
-BringToastToggle.MouseButton1Click:Connect(function()
-    isBringToastEnabled = not isBringToastEnabled
-    BringToastToggle.BackgroundColor3 = isBringToastEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
-end)
-
-BringLootBoxToggle.MouseButton1Click:Connect(function()
-    isBringLootBoxEnabled = not isBringLootBoxEnabled
-    BringLootBoxToggle.BackgroundColor3 = isBringLootBoxEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
-end)
-
-ShootingStarToggle.MouseButton1Click:Connect(function()
-    isShootingStarEnabled = not isShootingStarEnabled
-    ShootingStarToggle.BackgroundColor3 = isShootingStarEnabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
-end)
+updatePage()
 
 CloseButton.MouseButton1Click:Connect(function()
-    local isHidden = Frame.Visible
-    Frame.Visible = not isHidden
-    CloseButton.Text = isHidden and "Show" or "Hide"
+	Frame.Visible = not Frame.Visible
+	CloseButton.Text = Frame.Visible and "Hide" or "Show"
 end)
 
 while wait(0.4) do
-    if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
-        continue
-    end
+	if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then
+		continue
+	end
 
-    if player.Team.Name == "playing" then
-        for _, candy in pairs(candyFold:GetChildren()) do
-            if candy.Name == "candyCane" and isBringCandyCaneEnabled then
-                candy.Size = Vector3.new(1, 1, 1)
-                candy.Position = char.HumanoidRootPart.Position
-            elseif candy.Name == "taco" and isBringTacoEnabled then
-                candy.Size = Vector3.new(1, 1, 1)
-                candy.Position = char.HumanoidRootPart.Position
-            elseif candy.Name == "toast" and char.Humanoid.Health < 100 and isBringToastEnabled then
-                if candy:FindFirstChildOfClass("Fire") then
-                    candy:Destroy()
-                else
-                    candy.Size = Vector3.new(1, 1, 1)
-                    candy.Position = char.HumanoidRootPart.Position
-                end
-            elseif candy.Name == "lootbox" and isBringLootBoxEnabled then
-                candy.PrimaryPart.Size = Vector3.new(1, 1, 1)
-                local pos = char.HumanoidRootPart.CFrame
-                char.HumanoidRootPart.CFrame = candy.PrimaryPart.CFrame
-                task.wait()
-                char.HumanoidRootPart.CFrame = pos
-            elseif candy.Name == "shootingStar" and isShootingStarEnabled then
-                candy.Position = char.HumanoidRootPart.Position
-            end
-        end
-    end
+	if player.Team and player.Team.Name == "playing" then
+		for _, candy in pairs(candyFold:GetChildren()) do
+			if candy.Name == "candyCane" and variables.isBringCandyCaneEnabled then
+				candy.Size = Vector3.new(1, 1, 1)
+				candy.Position = char.HumanoidRootPart.Position
+			elseif candy.Name == "taco" and variables.isBringTacoEnabled then
+				candy.Size = Vector3.new(1, 1, 1)
+				candy.Position = char.HumanoidRootPart.Position
+			elseif candy.Name == "toast" and char.Humanoid.Health < 100 and variables.isBringToastEnabled then
+				if candy:FindFirstChildOfClass("Fire") then
+					candy:Destroy()
+				else
+					candy.Size = Vector3.new(1, 1, 1)
+					candy.Position = char.HumanoidRootPart.Position
+				end
+			elseif candy.Name == "lootbox" and variables.isBringLootBoxEnabled then
+				candy.PrimaryPart.Size = Vector3.new(1, 1, 1)
+				local pos = char.HumanoidRootPart.CFrame
+				char.HumanoidRootPart.CFrame = candy.PrimaryPart.CFrame
+				task.wait()
+				char.HumanoidRootPart.CFrame = pos
+			elseif candy.Name == "shootingStar" and variables.isShootingStarEnabled then
+				candy.Position = char.HumanoidRootPart.Position
+			end
+		end
+	end
 end
