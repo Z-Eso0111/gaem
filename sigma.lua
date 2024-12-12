@@ -16,6 +16,8 @@ ScreenGui.Name = "CandyHelperGUI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 
+script.Parent = ScreenGui
+
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0, 250, 0, 200)
 Frame.Position = UDim2.new(0.5, -125, 0.5, -100)
