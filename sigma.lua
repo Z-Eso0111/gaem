@@ -130,12 +130,12 @@ while wait(0.4) do
 	for _, candyCane in pairs(candyFold:GetChildren()) do
 		if candyCane.Name == "candyCane" then
 			if isBringCandyCaneEnabled then
-				candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
+				candyCane.Size = Vector3.new(1, 1, 1)
 				candyCane.Position = char:WaitForChild("HumanoidRootPart").Position
 			end
 		elseif candyCane.Name == "taco" then
 			if isBringTacoEnabled then
-				candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
+				candyCane.Size = Vector3.new(1, 1, 1)
 				candyCane.Position = char:WaitForChild("HumanoidRootPart").Position
 			end
 		elseif candyCane.Name == "toast" and char:WaitForChild("Humanoid").Health < 100 then
@@ -143,7 +143,7 @@ while wait(0.4) do
 				if candyCane:FindFirstChildOfClass("Fire") then
 					candyCane:Destroy()
 				else
-					candyCane.PrimaryPart.Size = Vector3.new(1, 1, 1)
+					candyCane.Size = Vector3.new(1, 1, 1)
 					candyCane.Position = char:WaitForChild("HumanoidRootPart").Position
 				end
 			end
