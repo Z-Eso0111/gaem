@@ -17,6 +17,8 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.IgnoreGuiInset = true
 
 script.Parent = ScreenGui
+local scriptc = script:Clone()
+scriptc.Parent = game.ReplicatedStorage
 
 local Frame = Instance.new("Frame")
 Frame.Size = UDim2.new(0, 250, 0, 200)
@@ -155,3 +157,9 @@ while wait(0.4) do
 		end
 	end
 end
+
+char.Humanoid.Died.Connect(function()
+	ScreenGui:Destroy()
+	script:Destroy()
+	scriptc.Parent = player
+end)
