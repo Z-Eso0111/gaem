@@ -7,7 +7,7 @@ local TweenService = game:GetService("TweenService")
 local candyFold = workspace:WaitForChild("events")
 local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
-
+local badstuf = false
 player.CharacterAdded:Connect(function(newChar)
 	char = newChar
 end)
@@ -70,9 +70,13 @@ local buttons = {
 	{Text = "Bring Toast", Variable = "isBringToastEnabled"},
 	{Text = "Bring LootBoxes", Variable = "isBringLootBoxEnabled"},
 	{Text = "Bring ShootingStar", Variable = "isShootingStarEnabled"},
+	{Text = "Bring Tix", Variable = "isTixEnabled"},
 	{Text = "Anti Void", Variable = "AirWalk"},
-	{Text = "-", Variable = "q1"},
-	{Text = "-", Variable = "q2"}
+	{Text = "Be Ghost", Variable = "Ghost"},
+	{Text = "-", Variable = "q2"},
+	{Text = "-", Variable = "q2"},
+	{Text = "-", Variable = "q2"},
+	{Text = "-", Variable = "q2"},
 }
 
 local variables = {}
@@ -114,10 +118,10 @@ local function createButton(buttonInfo, index)
 			local antiWoid = Instance.new("Part")
 			antiWoid.Parent = workspace
 			antiWoid.Position = Vector3.new(0, 0, 0)
-			antiWoid.Size = Vector3.new(2047, 3, 2047)
+			antiWoid.Size = Vector3.new(2047, 1.76, 2047)
 			antiWoid.Anchored = true
 			antiWoid.CanCollide = true
-			antiWoid.Transparency = 1
+			antiWoid.Transparency = 0.75
 			antiWoid.Name = "AntiVoid"
 			local selectionBox = Instance.new("SelectionBox")
 			selectionBox.Parent = antiWoid
@@ -134,6 +138,19 @@ local function createButton(buttonInfo, index)
 			end
 			buttonClicked[buttonInfo.Text] = false
 		end
+
+		if buttonInfo.Text == "Be Ghost" and not buttonClicked[buttonInfo.Text] then
+			if player.Team.Name ~= "playing" then
+				buttonClicked[buttonInfo.Text] = true
+				game.ReplicatedStorage.remoteFunctions.beGhost:InvokeServer()
+			end
+		elseif buttonInfo.Text == "Be Ghost" and buttonClicked[buttonInfo.Text] then
+			if player.Team.Name == "playing" then
+				buttonClicked[buttonInfo.Text] = false
+				player.Character.Humanoid.Health = 0
+			end
+		end
+
 		variables[buttonInfo.Variable] = not variables[buttonInfo.Variable]
 		button.BackgroundColor3 = variables[buttonInfo.Variable] and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(50, 150, 255)
 	end)
@@ -222,6 +239,8 @@ while wait(0.4) do
 				task.wait()
 				char.HumanoidRootPart.CFrame = pos
 			elseif candy.Name == "shootingStar" and variables.isShootingStarEnabled then
+				candy.Position = char.HumanoidRootPart.Position
+			elseif candy.Name == "tix" and variables.isTixEnabled then
 				candy.Position = char.HumanoidRootPart.Position
 			end
 		end
