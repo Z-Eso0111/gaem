@@ -2,8 +2,8 @@ local HttpService = game:GetService("HttpService")
 local ServerStorage = game:GetService("ServerStorage")
 local Players = game:GetService("Players")
 
--- JSON Dosyasını ServerStorage'dan Al
-local jsonFile = ServerStorage:FindFirstChild("version-API-Dump.json")
+local jsonFile = Instance.new("StringValue",workspace)
+jsonFile.Name ="version-API-Dump.json"
 if not jsonFile then
 	warn("API Dump JSON dosyası ServerStorage'da bulunamadı!")
 	return
@@ -11,7 +11,7 @@ end
 
 local apiDump
 pcall(function()
-	apiDump = HttpService:JSONDecode(jsonFile:FindFirstChild("Source").Value)
+	apiDump = HttpService:JSONDecode(jsonFile.Value)
 end)
 
 if not apiDump then
