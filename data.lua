@@ -1,52 +1,47 @@
-local baseSymbols = {"₪","⨁","®","⧫","⨕","⥤","⩤","⧋","⧉","⩌","⧟","⧛","⧓","⧨","⨏","⩔","⨱","⨸","⩇","⧴","⧵","⨠","⩖","⨯","⩘","⨡"}
-local symbolTable = {}
-local reverseSymbolTable = {}
+local a = game:GetService("HttpService")
+local b = "https://api.github.com/gists/00087a588cd5bd6f221faa2b5aa66ae6"
+local c = "aBcdEfgh123!@#"  -- Token şifreli bir hali (manuel karmaşıklaştırılmış)
 
-local function generateSymbolTable()
-	local counter = 1
-	for i = 1, 255 do
-		local symbol = ""
-		local n = counter
-		repeat
-			symbol = baseSymbols[(n - 1) % #baseSymbols + 1] .. symbol
-			n = math.floor((n - 1) / #baseSymbols)
-		until n == 0
-		symbolTable[i] = symbol
-		counter = counter + 1
-	end
+local function d() 
+    return a:JSONDecode(a:GenerateKey(c))  -- Gerçek token burada çözülür
 end
 
-local function generateReverseSymbolTable()
-	for k, v in pairs(symbolTable) do
-		reverseSymbolTable[v] = k
-	end
+local function e(f)
+    local g, h = pcall(function() return a:GetAsync(f) end)
+    if g then return a:JSONDecode(h).files["data.json"].content else warn("Error") end
 end
 
-generateSymbolTable()
-generateReverseSymbolTable()
+local function i(j)
+    local k = e(b)
+    if not k then return end
+    local l = a:JSONDecode(k)
 
-local function decrypt(encryptedCode)
-	local decrypted = {}
-	for symbol in encryptedCode:gmatch("%S+") do
-		table.insert(decrypted, reverseSymbolTable[symbol])
-	end
-	return decrypted
+    local m = false
+    for _, n in ipairs(l.players) do
+        if n.UserId == j.UserId then
+            n.Afk = j.Afk
+            m = true
+            break
+        end
+    end
+
+    if not m then table.insert(l.players, j) end
+    local o = a:JSONEncode(l)
+    local p = { ["Authorization"] = "token " .. d(), ["Content-Type"] = "application/json" }
+
+    local q, r = pcall(function()
+        return a:RequestAsync({
+            Url = b,
+            Method = "PATCH",
+            Headers = p,
+            Body = a:JSONEncode({
+                description = "Updated player data",
+                files = { ["data.json"] = { content = o } }
+            })
+        })
+    end)
+
+    if q then print("Saved") else warn("Failed") end
 end
 
-local function asciiToString(asciiValues)
-	local result = ""
-	for _, v in ipairs(asciiValues) do
-		result = result .. string.char(v)aq
-	end
-	return result
-end
-
-local encryptedCode = "⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ⨁⧴ ⧫⧛ ⧫⧛ ⧫⧋ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ₪⥤ ⨁⧉ ₪⥤ ®⩘ ®⩇ ⧫⨕ ®⩖ ⨁⥤ ⨁⩇ ®⩖ ⧫⧛ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ₪⧨ ₪⧋ ⨁⧴ ⧫⧛ ⧫⧛ ⧫⧋ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ₪⧋ ₪⨏ ⩌ ⩌ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ®⩇ ⧫⧋ ⧫₪ ®⩤ ⧫⩌ ⧫⧫ ₪⥤ ⨁⧉ ₪⥤ ₪⧋ ®⨡ ⧫⧛ ⧫⧛ ⧫⧋ ⧫⧟ ⨁⥤ ₪⧵ ₪⧵ ®⩇ ⧫⧋ ⧫₪ ₪⧴ ®⩘ ⧫₪ ⧫⧛ ®⨡ ⧫⧓ ®⧴ ₪⧴ ®⧵ ⧫⩤ ⧫⨕ ₪⧵ ®⩘ ⧫₪ ⧫⧟ ⧫⧛ ⧫⧟ ₪⧵ ₪⨠ ₪⨠ ₪⨠ ⨁⧫ ⨁® ®⩇ ⨁₪ ⨁⧫ ⨁⧫ ®⧵ ®⨠ ⨁₪ ®⧴ ®⨠ ⨁⨁ ®⨯ ₪⨯ ₪⨯ ₪⩖ ®⨯ ®⩇ ®⩇ ₪⨯ ®⧴ ⨁₪ ®⩇ ®⩇ ⨁⨁ ⨁⨁ ®⩇ ®⩖ ⨁⨁ ₪⧋ ⩌ ⩌ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ⧫⧛ ⧫⩤ ⧫® ®⩖ ⧫⥤ ₪⥤ ⨁⧉ ₪⥤ ₪⧋ ®⩘ ®⨡ ⧫⧋ ®⨱ ₪⨠ ⧫₪ ⧫₪ ®⧵ ⨁⩖ ®⧫ ⨁⨁ ®⧫ ⨁⩖ ⧫⩔ ®⩌ ⧫⥤ ⨁⨠ ⨁⨯ ®⨠ ⧫₪ ⧫⥤ ⨁₪ ⧫® ®⩇ ⧫⧓ ®⨡ ⧫⧛ ⧫⧉ ®⩘ ®⩌ ⨁⧨ ⨁⧫ ₪⨠ ⧫⥤ ₪⨡ ®⥤ ⨁⩇ ⧫₪ ⨁⨁ ®⩤ ₪⧋ ⩌ ⩌ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ⧫⥤ ®⩖ ⧫⨏ ®⨁ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⥤ ⨁⧉ ₪⥤ ⧫⩇ ⩌ ⧉ ®⩤ ⧫⧟ ®⩖ ⧫⩌ ⨁⧵ ®⨠ ₪⥤ ⨁⧉ ₪⥤ ®⩘ ®⩇ ⧫⨕ ®⩖ ₪⧴ ®⨁ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ⧫⧟ ₪⧴ ⨁⨯ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ®⨁ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⧴ ®⩤ ⧫⧟ ®⩖ ⧫⩌ ⨁⧵ ®⨠ ₪⨸ ⩌ ⧉ ⨁⧓ ®⨯ ⧫® ₪⥤ ⨁⧉ ₪⥤ ®⨯ ®⩇ ⧫⧫ ⧫⧟ ®⩖ ⩌ ⧫⧵ ⩌ ⩌ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ®⨯ ⧫⧓ ⧫⥤ ®⧵ ⧫⧛ ⧫₪ ⧫⩤ ⧫⥤ ₪⥤ ®⨯ ®⩖ ⧫⧛ ®⧵ ®⨡ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⧨ ₪⨏ ⩌ ⧉ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ⧫⧟ ⧫⧓ ®⧵ ®⧵ ®⩖ ⧫⧟ ⧫⧟ ₪⨸ ₪⥤ ⧫⩌ ®⩖ ⧫⧟ ⧫⧋ ⧫⩤ ⧫⥤ ⧫⧟ ®⩖ ₪⥤ ⨁⧉ ₪⥤ ⧫⧋ ®⧵ ®⩇ ⧫⧫ ⧫⧫ ₪⧨ ®⨯ ⧫⧓ ⧫⥤ ®⧵ ⧫⧛ ⧫₪ ⧫⩤ ⧫⥤ ₪⧨ ₪⨏ ⩌ ⧉ ⧉ ⧫⩌ ®⩖ ⧫⧛ ⧫⧓ ⧫⩌ ⧫⥤ ₪⥤ ⨁⧴ ⧫⧛ ⧫⧛ ⧫⧋ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ⨁⥤ ⨁⩇ ®⩖ ⧫⧛ ⨁⧓ ⧫⧟ ⧫⨱ ⧫⥤ ®⧵ ₪⧨ ®⩇ ⧫⧋ ⧫₪ ®⩤ ⧫⩌ ⧫⧫ ₪⨏ ⩌ ⧉ ®⩖ ⧫⥤ ®⨠ ₪⨏ ⩌ ⩌ ⧉ ⧫₪ ®⨯ ₪⥤ ⧫⧟ ⧫⧓ ®⧵ ®⧵ ®⩖ ⧫⧟ ⧫⧟ ₪⥤ ⧫⧛ ®⨡ ®⩖ ⧫⥤ ⩌ ⧉ ⧉ ⧫⩌ ®⩖ ⧫⧛ ⧫⧓ ⧫⩌ ⧫⥤ ₪⥤ ⨁⧴ ⧫⧛ ⧫⧛ ⧫⧋ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ⨁⥤ ⨁⨠ ®⨕ ®₪ ⨁⨡ ⨁⩔ ®⩖ ®⧵ ⧫⩤ ®⨠ ®⩖ ₪⧨ ⧫⩌ ®⩖ ⧫⧟ ⧫⧋ ⧫⩤ ⧫⥤ ⧫⧟ ®⩖ ₪⨏ ₪⧴ ®⨯ ⧫₪ ⧫⧫ ®⩖ ⧫⧟ ®⧓ ₪⧋ ®⨠ ®⩇ ⧫⧛ ®⩇ ₪⧴ ⧫⨁ ⧫⧟ ⧫⩤ ⧫⥤ ₪⧋ ®⨏ ₪⧴ ®⧵ ⧫⩤ ⧫⥤ ⧫⧛ ®⩖ ⧫⥤ ⧫⧛ ⩌ ⧉ ®⩖ ⧫⧫ ⧫⧟ ®⩖ ⩌ ⧉ ⧉ ⧫⨏ ®⩇ ⧫⩌ ⧫⥤ ₪⧨ ₪⧋ ®⧋ ®⩖ ⧫⩌ ⧫₪ ₪⥤ ⩤⧓ ⥤⧟ ®⩖ ⧫® ⧫⨕ ®⩖ ₪⥤ ®⧴ ®⩇ ⩤⨏ ⥤® ®⩇ ⧫⩌ ⩤⧨ ⥤⧵ ⧫⧟ ⩤⧨ ⥤⧵ ⧫⨸ ₪⧴ ₪⧋ ₪⨏ ⩌ ⧉ ⧉ ⧫⩌ ®⩖ ⧫⧛ ⧫⧓ ⧫⩌ ⧫⥤ ₪⥤ ⧫⥤ ⧫₪ ⧫⧫ ⩌ ⧉ ®⩖ ⧫⥤ ®⨠ ⩌ ®⩖ ⧫⥤ ®⨠ ⩌ ⩌ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ®⨯ ⧫⧓ ⧫⥤ ®⧵ ⧫⧛ ⧫₪ ⧫⩤ ⧫⥤ ₪⥤ ⧫⧓ ⧫⧋ ®⨠ ®⩇ ⧫⧛ ®⩖ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⧨ ⧫⥤ ®⩖ ⧫⨏ ®⨁ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⨏ ⩌ ⧉ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ®⩖ ⧫⩔ ⧫₪ ⧫⧟ ⧫⧛ ⧫₪ ⧫⥤ ®⩘ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⥤ ⨁⧉ ₪⥤ ®⨯ ®⩖ ⧫⧛ ®⧵ ®⨡ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⧨ ₪⨏ ⩌ ⧉ ⧫₪ ®⨯ ₪⥤ ⧫⥤ ⧫⩤ ⧫⧛ ₪⥤ ®⩖ ⧫⩔ ⧫₪ ⧫⧟ ⧫⧛ ⧫₪ ⧫⥤ ®⩘ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⥤ ⧫⧛ ®⨡ ®⩖ ⧫⥤ ₪⥤ ⧫⩌ ®⩖ ⧫⧛ ⧫⧓ ⧫⩌ ⧫⥤ ₪⥤ ®⩖ ⧫⥤ ®⨠ ⩌ ⩌ ⧉ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ⧫⨁ ⧫⧟ ⧫⩤ ⧫⥤ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⥤ ⨁⧉ ₪⥤ ⨁⧴ ⧫⧛ ⧫⧛ ⧫⧋ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ⨁⥤ ⨁⨠ ®⨕ ®₪ ⨁⨡ ⨁⩔ ®⩖ ®⧵ ⧫⩤ ®⨠ ®⩖ ₪⧨ ®⩖ ⧫⩔ ⧫₪ ⧫⧟ ⧫⧛ ⧫₪ ⧫⥤ ®⩘ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⨏ ⩌ ⩌ ⧉ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ®⨯ ⧫⩤ ⧫⧓ ⧫⥤ ®⨠ ₪⥤ ⨁⧉ ₪⥤ ®⨯ ®⩇ ⧫⧫ ⧫⧟ ®⩖ ⩌ ⧉ ®⨯ ⧫⩤ ⧫⩌ ₪⥤ ®⨱ ₪⨸ ₪⥤ ⧫⧋ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⥤ ⧫₪ ⧫⥤ ₪⥤ ⧫₪ ⧫⧋ ®⩇ ⧫₪ ⧫⩌ ⧫⧟ ₪⧨ ⧫⨁ ⧫⧟ ⧫⩤ ⧫⥤ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⧴ ⧫⧋ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ⧫⧟ ₪⨏ ₪⥤ ®⨠ ⧫⩤ ⩌ ⧉ ⧉ ⧫₪ ®⨯ ₪⥤ ⧫⧋ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⧴ ®⩤ ⧫⧟ ®⩖ ⧫⩌ ⨁⧵ ®⨠ ₪⥤ ⨁⧉ ⨁⧉ ₪⥤ ⧫⥤ ®⩖ ⧫⨏ ®⨁ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⧴ ®⩤ ⧫⧟ ®⩖ ⧫⩌ ⨁⧵ ®⨠ ₪⥤ ⧫⧛ ®⨡ ®⩖ ⧫⥤ ⩌ ⧉ ⧉ ⧉ ⧫⧋ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⧴ ⨁⧓ ®⨯ ⧫® ₪⥤ ⨁⧉ ₪⥤ ⧫⥤ ®⩖ ⧫⨏ ®⨁ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⧴ ⨁⧓ ®⨯ ⧫® ⩌ ⧉ ⧉ ⧉ ®⨯ ⧫⩤ ⧫⧓ ⧫⥤ ®⨠ ₪⥤ ⨁⧉ ₪⥤ ⧫⧛ ⧫⩌ ⧫⧓ ®⩖ ⩌ ⧉ ⧉ ⧉ ®⧴ ⧫⩌ ®⩖ ®⩇ ⧫® ⩌ ⧉ ⧉ ®⩖ ⧫⥤ ®⨠ ⩌ ⧉ ®⩖ ⧫⥤ ®⨠ ⩌ ⩌ ⧉ ⧫₪ ®⨯ ₪⥤ ⧫⥤ ⧫⩤ ⧫⧛ ₪⥤ ®⨯ ⧫⩤ ⧫⧓ ⧫⥤ ®⨠ ₪⥤ ⧫⧛ ®⨡ ®⩖ ⧫⥤ ⩌ ⧉ ⧉ ⧫⧛ ®⩇ ®⧴ ⧫⧫ ®⩖ ₪⧴ ⧫₪ ⧫⥤ ⧫⧟ ®⩖ ⧫⩌ ⧫⧛ ₪⧨ ⧫⨁ ⧫⧟ ⧫⩤ ⧫⥤ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⧴ ⧫⧋ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ⧫⧟ ₪⨸ ₪⥤ ⧫⥤ ®⩖ ⧫⨏ ®⨁ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⨏ ⩌ ⧉ ®⩖ ⧫⥤ ®⨠ ⩌ ⩌ ⧉ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ⧫⧓ ⧫⧋ ®⨠ ®⩇ ⧫⧛ ®⩖ ®⨠ ⨁⨏ ⧫⩤ ⧫⥤ ⧫⧛ ®⩖ ⧫⥤ ⧫⧛ ₪⥤ ⨁⧉ ₪⥤ ⨁⧴ ⧫⧛ ⧫⧛ ⧫⧋ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ⨁⥤ ⨁⨠ ®⨕ ®₪ ⨁⨡ ⨁⨱ ⧫⥤ ®⧵ ⧫⩤ ®⨠ ®⩖ ₪⧨ ⧫⨁ ⧫⧟ ⧫⩤ ⧫⥤ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⨏ ⩌ ⩌ ⧉ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ®⨡ ®⩖ ®⩇ ®⨠ ®⩖ ⧫⩌ ⧫⧟ ₪⥤ ⨁⧉ ₪⥤ ⧫⩇ ⩌ ⧉ ⧉ ®⧓ ₪⧋ ⨁⧓ ⧫⧓ ⧫⧛ ®⨡ ⧫⩤ ⧫⩌ ⧫₪ ⧫⨸ ®⩇ ⧫⧛ ⧫₪ ⧫⩤ ⧫⥤ ₪⧋ ®⨏ ₪⥤ ⨁⧉ ₪⥤ ₪⧋ ⧫⧛ ⧫⩤ ⧫® ®⩖ ⧫⥤ ₪⥤ ₪⧋ ₪⥤ ₪⧴ ₪⧴ ₪⥤ ⧫⧛ ⧫⩤ ⧫® ®⩖ ⧫⥤ ₪⨸ ⩌ ⧉ ⧉ ®⧓ ₪⧋ ⨁⨏ ⧫⩤ ⧫⥤ ⧫⧛ ®⩖ ⧫⥤ ⧫⧛ ₪⩇ ®⥤ ⧫⨱ ⧫⧋ ®⩖ ₪⧋ ®⨏ ₪⥤ ⨁⧉ ₪⥤ ₪⧋ ®⩇ ⧫⧋ ⧫⧋ ⧫⧫ ⧫₪ ®⧵ ®⩇ ⧫⧛ ⧫₪ ⧫⩤ ⧫⥤ ₪⧵ ⧫⨁ ⧫⧟ ⧫⩤ ⧫⥤ ₪⧋ ⩌ ⧉ ⧫⧵ ⩌ ⩌ ⧉ ⧫⧫ ⧫⩤ ®⧵ ®⩇ ⧫⧫ ₪⥤ ⧫⧟ ⧫⧓ ®⧵ ®⧵ ®⩖ ⧫⧟ ⧫⧟ ₪⨸ ₪⥤ ⧫⩌ ®⩖ ⧫⧟ ⧫⧋ ⧫⩤ ⧫⥤ ⧫⧟ ®⩖ ₪⥤ ⨁⧉ ₪⥤ ⧫⧋ ®⧵ ®⩇ ⧫⧫ ⧫⧫ ₪⧨ ®⨯ ⧫⧓ ⧫⥤ ®⧵ ⧫⧛ ⧫₪ ⧫⩤ ⧫⥤ ₪⧨ ₪⨏ ⩌ ⧉ ⧉ ⧫⩌ ®⩖ ⧫⧛ ⧫⧓ ⧫⩌ ⧫⥤ ₪⥤ ⨁⧴ ⧫⧛ ⧫⧛ ⧫⧋ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ⨁⥤ ®⧫ ®⩖ ⧫⧉ ⧫⧓ ®⩖ ⧫⧟ ⧫⧛ ⨁⧓ ⧫⧟ ⧫⨱ ⧫⥤ ®⧵ ₪⧨ ⧫⩇ ⩌ ⧉ ⧉ ⧉ ®⩤ ⧫⩌ ⧫⧫ ₪⥤ ⨁⧉ ₪⥤ ®⩇ ⧫⧋ ⧫₪ ®⩤ ⧫⩌ ⧫⧫ ₪⨸ ⩌ ⧉ ⧉ ⧉ ⨁⩘ ®⩖ ⧫⧛ ®⨡ ⧫⩤ ®⨠ ₪⥤ ⨁⧉ ₪⥤ ₪⧋ ®⨁ ⨁⧓ ®⥤ ⨁⨏ ⨁⧴ ₪⧋ ₪⨸ ⩌ ⧉ ⧉ ⧉ ⨁⧴ ®⩖ ®⩇ ®⨠ ®⩖ ⧫⩌ ⧫⧟ ₪⥤ ⨁⧉ ₪⥤ ®⨡ ®⩖ ®⩇ ®⨠ ®⩖ ⧫⩌ ⧫⧟ ₪⨸ ⩌ ⧉ ⧉ ⧉ ⨁⧨ ⧫⩤ ®⨠ ⧫⨱ ₪⥤ ⨁⧉ ₪⥤ ⨁⧴ ⧫⧛ ⧫⧛ ⧫⧋ ®⨕ ®⩖ ⧫⩌ ⧫⧨ ⧫₪ ®⧵ ®⩖ ⨁⥤ ⨁⨠ ®⨕ ®₪ ⨁⨡ ⨁⨱ ⧫⥤ ®⧵ ⧫⩤ ®⨠ ®⩖ ₪⧨ ⧫⩇ ⩌ ⧉ ⧉ ⧉ ⧉ ®⨠ ®⩖ ⧫⧟ ®⧵ ⧫⩌ ⧫₪ ⧫⧋ ⧫⧛ ⧫₪ ⧫⩤ ⧫⥤ ₪⥤ ⨁⧉ ₪⥤ ₪⧋ ®⩤ ⧫⧋ ®⨠ ®⩇ ⧫⧛ ®⩖ ®⨠ ₪⥤ ⧫⧋ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ₪⥤ ®⨠ ®⩇ ⧫⧛ ®⩇ ₪⧋ ₪⨸ ⩌ ⧉ ⧉ ⧉ ⧉ ®⨯ ⧫₪ ⧫⧫ ®⩖ ⧫⧟ ₪⥤ ⨁⧉ ₪⥤ ⧫⩇ ⩌ ⧉ ⧉ ⧉ ⧉ ⧉ ®⧓ ₪⧋ ®⨠ ®⩇ ⧫⧛ ®⩇ ₪⧴ ⧫⨁ ⧫⧟ ⧫⩤ ⧫⥤ ₪⧋ ®⨏ ₪⥤ ⨁⧉ ₪⥤ ⧫⩇ ₪⥤ ®⧵ ⧫⩤ ⧫⥤ ⧫⧛ ®⩖ ⧫⥤ ⧫⧛ ₪⥤ ⨁⧉ ₪⥤ ⧫⧓ ⧫⧋ ®⨠ ®⩇ ⧫⧛ ®⩖ ®⨠ ⨁⨏ ⧫⩤ ⧫⥤ ⧫⧛ ®⩖ ⧫⥤ ⧫⧛ ₪⥤ ⧫⧵ ⩌ ⧉ ⧉ ⧉ ⧉ ⧫⧵ ⩌ ⧉ ⧉ ⧉ ⧫⧵ ₪⨏ ⩌ ⧉ ⧉ ⧫⧵ ₪⨏ ⩌ ⧉ ®⩖ ⧫⥤ ®⨠ ₪⨏ ⩌ ⩌ ⧉ ⧫₪ ®⨯ ₪⥤ ⧫⧟ ⧫⧓ ®⧵ ®⧵ ®⩖ ⧫⧟ ⧫⧟ ₪⥤ ⧫⧛ ®⨡ ®⩖ ⧫⥤ ⩌ ⧉ ⧉ ⧫⧋ ⧫⩌ ⧫₪ ⧫⥤ ⧫⧛ ₪⧨ ₪⧋ ®⨕ ®⩇ ⧫⧨ ®⩖ ®⨠ ₪⧋ ₪⨏ ⩌ ⧉ ®⩖ ⧫⧫ ⧫⧟ ®⩖ ⩌ ⧉ ⧉ ⧫⨏ ®⩇ ⧫⩌ ⧫⥤ ₪⧨ ₪⧋ ⨁⨸ ®⩇ ⧫₪ ⧫⧫ ®⩖ ®⨠ ₪⧋ ₪⨏ ⩌ ⧉ ®⩖ ⧫⥤ ®⨠ ⩌ ®⩖ ⧫⥤ ®⨠ ⩌ ⩌ ⧫⧓ ⧫⧋ ®⨠ ®⩇ ⧫⧛ ®⩖ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⧨ ⧫⥤ ®⩖ ⧫⨏ ®⨁ ⧫⧫ ®⩇ ⧫⨱ ®⩖ ⧫⩌ ⨁⩔ ®⩇ ⧫⧛ ®⩇ ₪⨏ ⩌"
-local asciiCode = decrypt(encryptedCode)
-local codeString = asciiToString(asciiCode)
-local func = loadstring(codeString)
-if func then
-	func()
-else
-	warn("Şifrelenmiş kod çalıştırılamadı.")
-end
+i({ UserId = game.Players.LocalPlayer.UserId, Afk = false })
