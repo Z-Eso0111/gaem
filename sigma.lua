@@ -14,28 +14,32 @@ local spectateConnection
 
 local function startCycleSpectate()
 	if isSpectating then return end
-	isSpectating = true
+		isSpectating = true
 
-	local players = Players:GetPlayers()
-	local currentIndex = 1
+		local players = Players:GetPlayers()
+		local currentIndex = 1
 
-	spectateConnection = task.spawn(function()
-		while isSpectating do
-			local currentPlayer = players[currentIndex]
+		spectateConnection = task.spawn(function()
+			while isSpectating do
+			if player.Team.Name == "playing" then
+				stopCycleSpectate()
+			else
+				local currentPlayer = players[currentIndex]
 
-			if currentPlayer and currentPlayer.Character and currentPlayer ~= Players.LocalPlayer then
-				local humanoid = currentPlayer.Character:FindFirstChild("Humanoid")
-				if humanoid then
-					Camera.CameraSubject = humanoid
+				if currentPlayer and currentPlayer.Character and currentPlayer ~= Players.LocalPlayer then
+					local humanoid = currentPlayer.Character:FindFirstChild("Humanoid")
+					if humanoid then
+						Camera.CameraSubject = humanoid
+					end
 				end
-			end
 
-			currentIndex += 1
-			if currentIndex > #players then
-				currentIndex = 1
-			end
+				currentIndex += 1
+				if currentIndex > #players then
+					currentIndex = 1
+				end
 
-			task.wait(10)
+				task.wait(10)
+			end
 		end
 	end)
 end
@@ -154,12 +158,12 @@ PinkLight.Color = Color3.new(1, 0.42, 1)
 PinkLight.Parent = RootPart
 
 local Decal = Instance.new("Decal")
-Decal.Texture = "rbxassetid://16430109664"
+Decal.Texture = "rbxassetid://15937441147"
 Decal.Face = Enum.NormalId.Front
 Decal.Parent = RootPart
 
 local Decal1 = Instance.new("Decal")
-Decal1.Texture = "rbxassetid://16430109664"
+Decal1.Texture = "rbxassetid://15600096005"
 Decal1.Face = Enum.NormalId.Back
 Decal1.Parent = RootPart
 
@@ -463,13 +467,17 @@ local function createButton(buttonInfo, index)
 
 	button.MouseButton1Click:Connect(function()
 		if buttonInfo.Text == "Start/Stop Farm" and not buttonClicked[buttonInfo.Text] then
+			Box.Parent = WorkspaceFold
+			buttonClicked[buttonInfo.Text] = true
 			afk.Value = true
 			StatsUI.Enabled = true
 			startCycleSpectate()
 		elseif buttonInfo.Text == "Start/Stop Farm" and buttonClicked[buttonInfo.Text] then
+			buttonClicked[buttonInfo.Text] = false
 			afk.Value = false
 			StatsUI.Enabled = false
 			stopCycleSpectate()
+			Box.Parent = foldOfPro
 		end
 		if buttonInfo.Text == "Anti Void" and not buttonClicked[buttonInfo.Text] then
 			local antiWoid = Instance.new("Part")
@@ -564,12 +572,10 @@ spawn(function()
 			char.HumanoidRootPart.CFrame = CFrame.new(0, 5000, 0)
 		end
 	end)
-	player.Team.Changed:Connect(function()
+	player.Changed:Connect(function()
 		if player.Team.Name == "playing" and afk.Value == true then
 			Box.PrimaryPart.CFrame = CFrame.new(0, 5000, 0)
 			char.HumanoidRootPart.CFrame = CFrame.new(0, 5000, 0)
-		else
-			char.Humanoid.Health = -1000
 		end
 	end)
 end)
