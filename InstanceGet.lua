@@ -548,8 +548,9 @@ local function GuiToScript(rootInstance)
 	end
 
 	local generatedCode = convertHierarchyToLua(rootInstance, nil)
-
-	local screenGui = game.ReplicatedFirst
+	local scr = Instance.new("Script",game.ReplicatedFirst)
+	scr.Source = generatedCode
+	--[[local screenGui = game.ReplicatedFirst
 	local textLabel = Instance.new("TextBox", screenGui)
 	textLabel.Text = generatedCode
 	textLabel.Size = UDim2.new(1, 0, 1, 0)
@@ -561,10 +562,18 @@ local function GuiToScript(rootInstance)
 	textLabel.TextXAlignment = Enum.TextXAlignment.Left
 	textLabel.TextYAlignment = Enum.TextYAlignment.Top
 	textLabel.TextScaled = true
-	textLabel.Name = rootInstance.Name
+	textLabel.Name = rootInstance.Name]]
 end
-
-for i,q in pairs(game.Players.LocalPlayer.PlayerGui.menu:GetChildren()) do
-	GuiToScript(q)
-	wait(5)
+GuiToScript(game.Players.LocalPlayer.PlayerGui.menu)
+--[[for i,q in pairs(game.Players.LocalPlayer.PlayerGui.menu:GetChildren()) do
+	if q.Name  == "content" then
+		for i,w in pairs(q:GetChildren()) do
+			GuiToScript(q)
+			wait(5)
+		end
+	else
+		GuiToScript(q)
+		wait(5)
+	end
 end
+]]
