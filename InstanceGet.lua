@@ -99,7 +99,7 @@ local function GuiToScript(rootInstance)
         local responseData = HttpService:JSONDecode(response)
         print("Gist başarıyla yüklendi: " .. responseData.html_url)
     else
-        warn("Gist yüklenirken hata oluştu.")
+        warn("Gist yüklenirken hata oluştu. " .. response)
     end
 end
 
