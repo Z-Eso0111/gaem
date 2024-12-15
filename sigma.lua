@@ -1,4 +1,4 @@
-if game.ReplicatedStorage:FindFirstChild(player.Name .. "_XXxx[plkmnjhbvklnjawdewdaadbnhxd_Workspace]") then
+if game.ReplicatedStorage:FindFirstChild(game.Players.LocalPlayer.Name .. "_XXxx[plkmnjhbvklnjawdewdaadbnhxd_Workspace]") then
 else
 	TextChatService = game:GetService("TextChatService")
 	isLegacyChat = TextChatService.ChatVersion == Enum.ChatVersion.LegacyChatService
