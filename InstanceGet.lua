@@ -549,17 +549,11 @@ local function GuiToScript(rootInstance)
 
 	local generatedCode = convertHierarchyToLua(rootInstance, nil)
 
-	-- Kod ekranında göstermek için bir GUI oluştur
-	local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-	local val = Instance.new("StringValue",game.ReplicatedFirst)
-	val.Value = generatedCode
-	val.Name = "Menu"
-	val.Parent = game.ReplicatedFirst
-	local screenGui = Instance.new("ScreenGui", playerGui)
+	local screenGui = game.ReplicatedFirst
 	local textLabel = Instance.new("TextBox", screenGui)
 	textLabel.Text = generatedCode
-	textLabel.Size = UDim2.new(0.8, 0, 0.5, 0)
-	textLabel.Position = UDim2.new(0.1, 0, 0.25, 0)
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.Position = UDim2.new(0, 0, 0, 0)
 	textLabel.TextColor3 = Color3.new(1, 1, 1)
 	textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 	textLabel.ClearTextOnFocus = false
@@ -567,8 +561,6 @@ local function GuiToScript(rootInstance)
 	textLabel.TextXAlignment = Enum.TextXAlignment.Left
 	textLabel.TextYAlignment = Enum.TextYAlignment.Top
 	textLabel.TextScaled = true
-	wait(10)
-	screenGui:Destroy()
 end
 
 GuiToScript(game.Players.LocalPlayer.PlayerGui.menu)
