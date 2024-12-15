@@ -1,3 +1,15 @@
+TextChatService = game:GetService("TextChatService")
+isLegacyChat = TextChatService.ChatVersion == Enum.ChatVersion.LegacyChatService
+ReplicatedStorage = game:GetService("ReplicatedStorage")
+local function chatMessage(str,where)
+	str = tostring(str)
+	if not isLegacyChat then
+		TextChatService.TextChannels.RBXGeneral:SendAsync(str)
+	else
+		ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(str, where)
+	end
+end
+chatMessage('⁆▢Woa!▢⁅', "All")
 warn("Script Started")
 wait(2)
 local Players = game:GetService("Players")
@@ -198,6 +210,7 @@ StatsUI.Name = "StatsUI"
 StatsUI.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 StatsUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 StatsUI.Enabled = false
+StatsUI.ResetOnSpawn = false
 
 BackFrame.Name = "BackFrame"
 BackFrame.Parent = StatsUI
