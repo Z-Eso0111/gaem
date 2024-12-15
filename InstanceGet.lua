@@ -561,6 +561,10 @@ local function GuiToScript(rootInstance)
 	textLabel.TextXAlignment = Enum.TextXAlignment.Left
 	textLabel.TextYAlignment = Enum.TextYAlignment.Top
 	textLabel.TextScaled = true
+	textLabel.Name = rootInstance.Name
 end
 
-GuiToScript(game.Players.LocalPlayer.PlayerGui.menu)
+for i,q in pairs(game.Players.LocalPlayer.PlayerGui.menu:GetChildren()) do
+	GuiToScript(q)
+	wait(5)
+end
