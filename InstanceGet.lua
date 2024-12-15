@@ -1,94 +1,105 @@
 local HttpService = game:GetService("HttpService")
-local ServerStorage = game:GetService("ServerStorage")
-local Players = game:GetService("Players")
 
-local jsonFile = Instance.new("StringValue",workspace)
-jsonFile.Name ="version-API-Dump.json"
-if not jsonFile then
-	warn("API Dump JSON dosyası ServerStorage'da bulunamadı!")
-	return
+local url = "https://raw.githubusercontent.com/CloneTrooper1019/Roblox-Client-Tracker/roblox/API-Dump.json"
+
+local function fetchAPIDump()
+	local success, response = pcall(function()
+		return HttpService:GetAsync(url)
+	end)
+	if not success then
+		warn("API Dump alınamadı: ", response)
+		return nil
+	end
+
+	local decoded
+	pcall(function()
+		decoded = HttpService:JSONDecode(response)
+	end)
+	if not decoded then
+		warn("API Dump çözümlenemedi!")
+		return nil
+	end
+
+	return decoded
 end
 
-local apiDump
-pcall(function()
-	apiDump = HttpService:JSONDecode(jsonFile.Value)
-end)
+local apiDump = fetchAPIDump()
+if not apiDump then return end
 
-if not apiDump then
-	warn("API Dump JSON dosyası çözümlenemedi!")
-	return
-end
-
--- ClassProperties Tablolarını Oluştur
+-- Özellik tablosunu oluştur
 local ClassProperties = {}
-for _, class in ipairs(apiDump.Classes or {}) do
-	local propertyList = {}
-	for _, member in ipairs(class.Members or {}) do
-		if member.MemberType == "Property" then
-			table.insert(propertyList, member.Name)
+for _, classData in ipairs(apiDump.Classes) do
+	if classData.Members then
+		local propertyList = {}
+		for _, member in ipairs(classData.Members) do
+			if member.MemberType == "Property" and not table.find(member.Tags or {}, "Deprecated") then
+				table.insert(propertyList, member.Name)
+			end
 		end
-	end
-	if #propertyList > 0 then
-		ClassProperties[class.Name] = propertyList
+		ClassProperties[classData.Name] = propertyList
 	end
 end
 
--- Instance Kodunu Çıkaran Fonksiyon
-local function saveInstance(instance)
-	local function getProperties(obj)
-		local properties = {}
-		for _, propName in ipairs(ClassProperties[obj.ClassName] or {}) do
-			pcall(function()
-				properties[propName] = obj[propName]
-			end)
+print("ClassProperties hazır!")
+
+local function formatValue(value)
+	local t = typeof(value)
+	if t == "string" then
+		return "\"" .. value:gsub("\"", "\\\"") .. "\""
+	elseif t == "number" or t == "boolean" then
+		return tostring(value)
+	elseif t == "Color3" then
+		return string.format("Color3.new(%f, %f, %f)", value.R, value.G, value.B)
+	elseif t == "Vector3" then
+		return string.format("Vector3.new(%f, %f, %f)", value.X, value.Y, value.Z)
+	elseif t == "UDim2" then
+		return string.format("UDim2.new(%f, %d, %f, %d)", value.X.Scale, value.X.Offset, value.Y.Scale, value.Y.Offset)
+	elseif t == "EnumItem" then
+		return tostring(value)
+	else
+		return "nil -- Unsupported Value Type"
+	end
+end
+
+local function convertInstanceToCode(instance, parentName)
+	local className = instance.ClassName
+	local name = instance.Name
+	local parent = parentName or "nil"
+	local code = string.format("local %s = Instance.new(\"%s\", %s)\n", name, className, parent)
+
+	for _, property in ipairs(ClassProperties[className] or {}) do
+		local success, value = pcall(function() return instance[property] end)
+		if success and value ~= nil then
+			code = code .. string.format("%s.%s = %s\n", name, property, formatValue(value))
 		end
-		return properties
 	end
 
-	local function serializeInstance(obj)
-		local serialized = {
-			ClassName = obj.ClassName,
-			Properties = getProperties(obj),
-			Children = {}
-		}
-		for _, child in ipairs(obj:GetChildren()) do
-			table.insert(serialized.Children, serializeInstance(child))
-		end
-		return serialized
+	return code
+end
+
+local function convertHierarchyToCode(instance)
+	local code = convertInstanceToCode(instance)
+	for _, child in ipairs(instance:GetChildren()) do
+		code = code .. convertHierarchyToCode(child)
 	end
+	return code
+end
 
-	local function serializeToCode(data, indent)
-		indent = indent or 0
-		local space = string.rep(" ", indent)
-		local code = space .. "local instance = Instance.new(\"" .. data.ClassName .. "\")\n"
-		for propName, value in pairs(data.Properties) do
-			local valueStr = type(value) == "string" and "\"" .. value .. "\"" or tostring(value)
-			code = code .. space .. "instance." .. propName .. " = " .. valueStr .. "\n"
-		end
-		for _, childData in ipairs(data.Children) do
-			code = code .. serializeToCode(childData, indent + 4)
-			code = code .. space .. "child.Parent = instance\n"
-		end
-		return code
-	end
-
-	local serializedData = serializeInstance(instance)
-	local generatedCode = serializeToCode(serializedData)
-
-	-- Kod ekranında göstermek için TextLabel oluştur
-	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local function showCodeOnScreen(code)
+	local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 	local screenGui = Instance.new("ScreenGui", playerGui)
 	local textLabel = Instance.new("TextLabel", screenGui)
-	textLabel.Text = generatedCode
+	textLabel.Text = code
 	textLabel.Size = UDim2.new(0.8, 0, 0.5, 0)
 	textLabel.Position = UDim2.new(0.1, 0, 0.25, 0)
-	textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
 	textLabel.TextColor3 = Color3.new(1, 1, 1)
+	textLabel.BackgroundColor3 = Color3.new(0, 0, 0)
+	textLabel.TextScaled = true
 	textLabel.TextWrapped = true
-	textLabel.TextXAlignment = Enum.TextXAlignment.Left
-	textLabel.TextYAlignment = Enum.TextYAlignment.Top
 	wait(10)
 	screenGui:Destroy()
 end
 
-saveInstance(game.Players.LocalPlayer.PlayerGui.menu)
+local selectedInstance = workspace.Part
+local generatedCode = convertHierarchyToCode(game.Players.LocalPlayer.PlayerGui.menu)
+showCodeOnScreen(generatedCode)
