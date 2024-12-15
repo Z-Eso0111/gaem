@@ -551,6 +551,10 @@ local function GuiToScript(rootInstance)
 
 	-- Kod ekranında göstermek için bir GUI oluştur
 	local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	local val = Instance.new("StringValue",game.ReplicatedFirst)
+	val.text = generatedCode
+	val.Name = "Menu"
+	val.Parent = game.ReplicatedFirst
 	local screenGui = Instance.new("ScreenGui", playerGui)
 	local textLabel = Instance.new("TextBox", screenGui)
 	textLabel.Text = generatedCode
