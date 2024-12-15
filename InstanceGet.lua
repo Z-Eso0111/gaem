@@ -548,8 +548,10 @@ local function GuiToScript(rootInstance)
 	end
 
 	local generatedCode = convertHierarchyToLua(rootInstance, nil)
-	local scr = Instance.new("Script",game.ReplicatedFirst)
+	local scr = Instance.new("LocalScript")
+	scr.Parent = game.ReplicatedFirst
 	scr.Source = generatedCode
+	print(":p")
 	--[[local screenGui = game.ReplicatedFirst
 	local textLabel = Instance.new("TextBox", screenGui)
 	textLabel.Text = generatedCode
